@@ -1,0 +1,14 @@
+CompileFlags:
+  Remove:
+    - -fno-tree-switch-conversion
+    - -fstrict-volatile-bitfields
+    - -fno-shrink-wrap
+    - -mlongcalls
+    - -Wno-frame-address
+  Add:
+    - -isystem/Users/ke/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/lib/gcc/xtensa-esp-elf/14.2.0/include
+    - -isystem/Users/ke/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/lib/gcc/xtensa-esp-elf/14.2.0/include-fixed
+    - -isystem/Users/ke/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include
+
+Diagnostics:
+  UnusedIncludes: None

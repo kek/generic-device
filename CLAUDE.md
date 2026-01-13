@@ -71,6 +71,33 @@ idf.py set-target esp32
 
 The ESP-IDF framework expects a `void app_main(void)` function as the application entry point. This is defined in `micro.c:3` and is called by the framework's startup code after initialization.
 
+## Editor Integration (LSP/clangd)
+
+To get proper IDE/editor support (code completion, error checking, go-to-definition):
+
+1. Generate `compile_commands.json`:
+```bash
+cd build && cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
+cd .. && ln -sf build/compile_commands.json compile_commands.json
+```
+
+2. The `.clangd` config file:
+   - Filters out GCC-specific compiler flags that clang doesn't understand
+   - Adds the xtensa-esp32-elf toolchain's system include paths so clangd can find standard library headers
+
+3. After setup, restart your LSP server (in Helix: `:lsp-restart`).
+
+Run the compile_commands.json generation after:
+- Initial project setup
+- Adding new source files
+- Changing build configuration
+- CMakeLists.txt modifications
+
+Note:
+- `compile_commands.json` and `.cache` are in `.gitignore`
+- `.clangd` is committed and contains paths for ESP-IDF v5.5.2 at `~/.espressif/v5.5.2/`. If your ESP-IDF is elsewhere, update the paths in `.clangd`
+- To find the correct system include paths for your toolchain: `xtensa-esp32-elf-gcc -E -Wp,-v -xc /dev/null 2>&1 | grep "^ /"`
+
 ## Configuration
 
 The `sdkconfig` file is auto-generated and contains all ESP32 configuration options. To modify configuration:
