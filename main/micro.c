@@ -1,5 +1,5 @@
 #include "st7735.h"
-#include "image_data.h"
+#include "space_invaders.h"
 
 void app_main(void)
 {
@@ -9,6 +9,6 @@ void app_main(void)
     // Set rotation to landscape (matching Arduino setRotation(1))
     st7735_set_rotation(1);
 
-    // Display the image (160x128 pixels, fills entire screen in landscape mode)
-    st7735_draw_image(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT, image_data);
+    // Run Space Invaders demo
+    space_invaders_demo();
 }
