@@ -109,4 +109,14 @@ int16_t st7735_width(void);
  */
 int16_t st7735_height(void);
 
+/**
+ * Draw raw RGB565 image data
+ * @param x X coordinate
+ * @param y Y coordinate
+ * @param w Width of image
+ * @param h Height of image
+ * @param data RGB565 image data (big-endian, 2 bytes per pixel)
+ */
+void st7735_draw_image(int16_t x, int16_t y, int16_t w, int16_t h, const uint8_t *data);
+
 #endif // ST7735_H

@@ -367,3 +367,16 @@ int16_t st7735_width(void) {
 int16_t st7735_height(void) {
     return _height;
 }
+
+void st7735_draw_image(int16_t x, int16_t y, int16_t w, int16_t h, const uint8_t *data) {
+    if (x >= _width || y >= _height || w <= 0 || h <= 0) return;
+    if (x + w > _width) w = _width - x;
+    if (y + h > _height) h = _height - y;
+
+    set_addr_window(x, y, x + w - 1, y + h - 1);
+    gpio_set_dc(1);
+
+    // Send all image data at once
+    size_t data_size = w * h * 2; // 2 bytes per pixel (RGB565)
+    write_data(data, data_size);
+}
