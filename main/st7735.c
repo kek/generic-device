@@ -270,8 +270,8 @@ void st7735_set_rotation(uint8_t rotation) {
             madctl = MADCTL_MY | MADCTL_MV | MADCTL_RGB;
             _width = ST7735_HEIGHT;
             _height = ST7735_WIDTH;
-            _xstart = 0;
-            _ystart = 0;
+            _xstart = 1;
+            _ystart = 2;
             break;
         case 2:
             madctl = MADCTL_RGB;
