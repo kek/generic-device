@@ -6,18 +6,28 @@
 
 // Game state
 static int16_t player_x = GAME_WIDTH / 2 - PLAYER_WIDTH / 2;
+static int16_t player_x_old = GAME_WIDTH / 2 - PLAYER_WIDTH / 2;
+
 static int16_t aliens_x[ALIEN_ROWS][ALIEN_COLS];
 static int16_t aliens_y[ALIEN_ROWS][ALIEN_COLS];
 static uint8_t aliens_alive[ALIEN_ROWS][ALIEN_COLS];
 static int16_t alien_formation_x = 10;
+static int16_t alien_formation_x_old = 10;
 static int8_t alien_direction = 1;
 static uint8_t alien_frame = 0;
+static uint8_t alien_frame_old = 0;
 
 static int16_t bullet_x = -1;
 static int16_t bullet_y = -1;
+static int16_t bullet_x_old = -1;
+static int16_t bullet_y_old = -1;
 static uint8_t bullet_active = 0;
+static uint8_t bullet_active_old = 0;
 
 static uint16_t score = 0;
+static uint16_t score_old = 0;
+
+static uint8_t first_frame = 1;
 
 // Draw player ship
 static void draw_player(int16_t x, int16_t y, uint16_t color) {
@@ -56,11 +66,17 @@ static void init_game(void) {
     }
 
     player_x = GAME_WIDTH / 2 - PLAYER_WIDTH / 2;
+    player_x_old = player_x;
     alien_formation_x = 10;
+    alien_formation_x_old = 10;
     alien_direction = 1;
     alien_frame = 0;
+    alien_frame_old = 0;
     bullet_active = 0;
+    bullet_active_old = 0;
     score = 0;
+    score_old = 0;
+    first_frame = 1;
 }
 
 // Update game state
@@ -104,6 +120,8 @@ static void update_game(void) {
 
                     if (bullet_x >= ax && bullet_x < ax + ALIEN_WIDTH &&
                         bullet_y >= ay && bullet_y < ay + ALIEN_HEIGHT) {
+                        // Erase the alien immediately
+                        draw_alien(ax, ay, alien_frame, ST77XX_BLACK);
                         aliens_alive[row][col] = 0;
                         bullet_active = 0;
                         score += 10;
@@ -139,15 +157,39 @@ static void update_game(void) {
 
 // Render game
 static void render_game(void) {
-    // Clear screen
-    st7735_fill_screen(ST77XX_BLACK);
+    // Clear screen only on first frame
+    if (first_frame) {
+        st7735_fill_screen(ST77XX_BLACK);
+        first_frame = 0;
+    }
 
-    // Draw score
-    char score_str[16];
-    snprintf(score_str, sizeof(score_str), "SCORE:%04d", score);
-    st7735_draw_string(2, 2, score_str, ST77XX_WHITE, ST77XX_BLACK, 1);
+    // Update score if changed
+    if (score != score_old) {
+        // Clear old score area
+        st7735_fill_rect(0, 0, GAME_WIDTH, 10, ST77XX_BLACK);
 
-    // Draw aliens
+        // Draw new score
+        char score_str[16];
+        snprintf(score_str, sizeof(score_str), "SCORE:%04d", score);
+        st7735_draw_string(2, 2, score_str, ST77XX_WHITE, ST77XX_BLACK, 1);
+
+        score_old = score;
+    }
+
+    // Erase aliens at old positions if formation moved or frame changed
+    if (alien_formation_x != alien_formation_x_old || alien_frame != alien_frame_old) {
+        for (int row = 0; row < ALIEN_ROWS; row++) {
+            for (int col = 0; col < ALIEN_COLS; col++) {
+                if (aliens_alive[row][col]) {
+                    int16_t ax_old = alien_formation_x_old + aliens_x[row][col];
+                    int16_t ay = aliens_y[row][col];
+                    draw_alien(ax_old, ay, alien_frame_old, ST77XX_BLACK);
+                }
+            }
+        }
+    }
+
+    // Draw aliens at new positions
     for (int row = 0; row < ALIEN_ROWS; row++) {
         for (int col = 0; col < ALIEN_COLS; col++) {
             if (aliens_alive[row][col]) {
@@ -164,13 +206,33 @@ static void render_game(void) {
         }
     }
 
-    // Draw player
-    draw_player(player_x, PLAYER_Y, ST77XX_CYAN);
+    // Update old alien position tracking
+    alien_formation_x_old = alien_formation_x;
+    alien_frame_old = alien_frame;
 
-    // Draw bullet
+    // Erase player at old position if moved
+    if (player_x != player_x_old) {
+        draw_player(player_x_old, PLAYER_Y, ST77XX_BLACK);
+    }
+
+    // Draw player at new position
+    draw_player(player_x, PLAYER_Y, ST77XX_CYAN);
+    player_x_old = player_x;
+
+    // Erase old bullet if it moved or deactivated
+    if (bullet_active_old && (bullet_x != bullet_x_old || bullet_y != bullet_y_old || !bullet_active)) {
+        st7735_fill_rect(bullet_x_old, bullet_y_old, BULLET_WIDTH, BULLET_HEIGHT, ST77XX_BLACK);
+    }
+
+    // Draw new bullet if active
     if (bullet_active) {
         st7735_fill_rect(bullet_x, bullet_y, BULLET_WIDTH, BULLET_HEIGHT, ST77XX_WHITE);
     }
+
+    // Update old bullet tracking
+    bullet_x_old = bullet_x;
+    bullet_y_old = bullet_y;
+    bullet_active_old = bullet_active;
 }
 
 void space_invaders_demo(void) {
@@ -179,6 +241,6 @@ void space_invaders_demo(void) {
     while (1) {
         update_game();
         render_game();
-        vTaskDelay(100 / portTICK_PERIOD_MS);  // ~10 FPS
+        vTaskDelay(50 / portTICK_PERIOD_MS);  // ~20 FPS with partial updates
     }
 }
