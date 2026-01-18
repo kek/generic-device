@@ -7,7 +7,7 @@
 
 // Pin definitions (matching Arduino example)
 #define TFT_CS      GPIO_NUM_5
-#define TFT_RST     GPIO_NUM_32
+#define TFT_RST     GPIO_NUM_4
 #define TFT_DC      GPIO_NUM_33
 #define TFT_MOSI    GPIO_NUM_13
 #define TFT_SCLK    GPIO_NUM_18
