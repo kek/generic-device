@@ -1,5 +1,4 @@
 #include "st7735.h"
-#include "space_invaders.h"
 
 void app_main(void)
 {
@@ -9,6 +8,9 @@ void app_main(void)
     // Set rotation to landscape (matching Arduino setRotation(1))
     st7735_set_rotation(1);
 
-    // Run Space Invaders demo
-    space_invaders_demo();
+    // Fill screen with black
+    st7735_fill_screen(ST77XX_BLACK);
+
+    // Draw the letter "A" in white at position (10, 10) with size 2
+    st7735_draw_char(10, 10, 'A', ST77XX_WHITE, ST77XX_BLACK, 2);
 }
