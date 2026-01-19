@@ -8,10 +8,10 @@
 // Pin definitions (HSPI defaults)
 #define TFT_CS      GPIO_NUM_15
 #define TFT_RST     GPIO_NUM_4
-#define TFT_DC      GPIO_NUM_33
+#define TFT_DC      GPIO_NUM_18
 #define TFT_MOSI    GPIO_NUM_13
 #define TFT_SCLK    GPIO_NUM_14
-#define TFT_BL      GPIO_NUM_25
+#define TFT_BL      GPIO_NUM_27
 
 // Display dimensions
 #define ST7735_WIDTH    128
